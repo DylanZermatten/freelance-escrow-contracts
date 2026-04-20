@@ -62,6 +62,37 @@ describe("FreelanceEscrow — raiseDispute & resolveDispute", function () {
     ).to.be.revertedWithCustomError(escrow, "DescriptionTooLong");
   });
 
+  it("reverts if project is not Active", async function () {
+    const { escrow, client, freelancer } = await loadFixture(deployFixture);
+    await escrow.connect(client).createProject(
+      freelancer.address,
+      ["Design", "Build"],
+      [usdc(100), usdc(200)]
+    );
+    await escrow.connect(freelancer).completeMilestone(0, 0);
+    await escrow.connect(client).cancelProject(0);
+
+    await expect(
+      escrow.connect(client).raiseDispute(0, 0, "Too late")
+    ).to.be.revertedWithCustomError(escrow, "InvalidProjectStatus");
+  });
+
+  it("reverts if milestoneIdx is out of bounds", async function () {
+    const { escrow, client } = await withCompletedMilestone();
+    await expect(
+      escrow.connect(client).raiseDispute(0, 99, "reason")
+    ).to.be.revertedWithCustomError(escrow, "InvalidMilestones");
+  });
+
+  it("reverts when paused", async function () {
+    const { escrow, client, owner } = await withCompletedMilestone();
+    await escrow.connect(owner).pause();
+
+    await expect(
+      escrow.connect(client).raiseDispute(0, 0, "reason")
+    ).to.be.revertedWithCustomError(escrow, "EnforcedPause");
+  });
+
   // ── resolveDispute ────────────────────────────────────────────────
 
   async function withDispute() {
@@ -114,11 +145,11 @@ describe("FreelanceEscrow — raiseDispute & resolveDispute", function () {
       .withArgs(0n, 0n, usdc(60), usdc(40));
   });
 
-  it("restores project status to Active after resolution", async function () {
+  it("marks project Completed after resolution when all milestones are resolved", async function () {
     const { escrow, owner } = await withDispute();
     await escrow.connect(owner).resolveDispute(0, 0, usdc(100), usdc(0));
     const [, , , , , status] = await escrow.getProject(0);
-    expect(status).to.equal(0n); // Active
+    expect(status).to.equal(2n); // Completed
   });
 
   it("reverts if split does not sum to milestone amount", async function () {
@@ -140,5 +171,30 @@ describe("FreelanceEscrow — raiseDispute & resolveDispute", function () {
     await expect(
       escrow.connect(owner).resolveDispute(0, 0, usdc(100), usdc(0))
     ).to.be.revertedWithCustomError(escrow, "InvalidMilestoneStatus");
+  });
+
+  it("reverts if milestoneIdx is out of bounds", async function () {
+    const { escrow, owner } = await withDispute();
+    await expect(
+      escrow.connect(owner).resolveDispute(0, 99, usdc(100), usdc(0))
+    ).to.be.revertedWithCustomError(escrow, "InvalidMilestones");
+  });
+
+  it("restores project status to Active after resolution if other milestones remain unresolved", async function () {
+    const fixture = await loadFixture(deployFixture);
+    const { escrow, client, freelancer, owner } = fixture;
+
+    await escrow.connect(client).createProject(
+      freelancer.address,
+      ["Design", "Build"],
+      [usdc(100), usdc(200)]
+    );
+    await escrow.connect(freelancer).completeMilestone(0, 0);
+    await escrow.connect(client).raiseDispute(0, 0, "Partial issue");
+
+    await escrow.connect(owner).resolveDispute(0, 0, usdc(60), usdc(40));
+
+    const [, , , , , status] = await escrow.getProject(0);
+    expect(status).to.equal(0n); // Active
   });
 });

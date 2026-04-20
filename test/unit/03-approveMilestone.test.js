@@ -74,13 +74,16 @@ describe("FreelanceEscrow — approveMilestone", function () {
   });
 
   it("reverts if milestone is still Pending (not Completed)", async function () {
-    const { escrow, client } = await loadFixture(deployFixture);
+    const { escrow, client, freelancer } = await loadFixture(deployFixture);
     await escrow.connect(client).createProject(
-      (await loadFixture(deployFixture)).freelancer.address,
+      freelancer.address,
       ["Work"],
       [usdc(100)]
     );
-    // Trying to approve without completeMilestone first — need a fresh fixture
+
+    await expect(
+      escrow.connect(client).approveMilestone(0, 0)
+    ).to.be.revertedWithCustomError(escrow, "InvalidMilestoneStatus");
   });
 
   it("reverts if milestone is already Approved", async function () {
@@ -89,5 +92,31 @@ describe("FreelanceEscrow — approveMilestone", function () {
     await expect(
       escrow.connect(client).approveMilestone(0, 0)
     ).to.be.revertedWithCustomError(escrow, "InvalidMilestoneStatus");
+  });
+
+  it("reverts if project is not Active", async function () {
+    const { escrow, client, freelancer } = await withCompletedMilestone();
+    await escrow.connect(client).cancelProject(0);
+
+    await expect(
+      escrow.connect(client).approveMilestone(0, 0)
+    ).to.be.revertedWithCustomError(escrow, "InvalidProjectStatus");
+  });
+
+  it("reverts if milestoneIdx is out of bounds", async function () {
+    const { escrow, client } = await withCompletedMilestone();
+
+    await expect(
+      escrow.connect(client).approveMilestone(0, 99)
+    ).to.be.revertedWithCustomError(escrow, "InvalidMilestones");
+  });
+
+  it("reverts when paused", async function () {
+    const { escrow, client, owner } = await withCompletedMilestone();
+    await escrow.connect(owner).pause();
+
+    await expect(
+      escrow.connect(client).approveMilestone(0, 0)
+    ).to.be.revertedWithCustomError(escrow, "EnforcedPause");
   });
 });

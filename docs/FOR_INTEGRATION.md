@@ -89,6 +89,7 @@ After compilation:
 - project creation requires ERC-20 `approve` first
 - on local setup, the test fixture pre-mints `10,000` mUSDC to the client
 - dispute blocks normal active flow until owner resolution
+- dispute resolution closes the milestone as `Approved`; the project may become `Completed` if no unresolved milestones remain
 
 ## Suggested integration order
 

@@ -60,4 +60,13 @@ describe("FreelanceEscrow — completeMilestone", function () {
       escrow.connect(freelancer).completeMilestone(99, 0)
     ).to.be.revertedWithCustomError(escrow, "ProjectNotFound");
   });
+
+  it("reverts if project is no longer Active", async function () {
+    const { escrow, client, freelancer } = await withProject();
+    await escrow.connect(client).cancelProject(0);
+
+    await expect(
+      escrow.connect(freelancer).completeMilestone(0, 0)
+    ).to.be.revertedWithCustomError(escrow, "InvalidProjectStatus");
+  });
 });

@@ -367,6 +367,10 @@ contract FreelanceEscrow is ReentrancyGuard, Pausable, Ownable {
         p.status = ProjectStatus.Active;
         p.disputeReason = "";
 
+        if (_isProjectFullyResolved(p)) {
+            p.status = ProjectStatus.Completed;
+        }
+
         // Fee applies only on freelancer's portion
         uint256 fee = (amountToFreelancer * p.platformFeeBps) / BPS_DENOMINATOR;
         uint256 netToFreelancer = amountToFreelancer - fee;

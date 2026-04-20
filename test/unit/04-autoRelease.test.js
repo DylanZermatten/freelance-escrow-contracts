@@ -71,12 +71,35 @@ describe("FreelanceEscrow — claimExpiredMilestone (auto-release)", function ()
   });
 
   it("reverts if milestone is still Pending", async function () {
-    const { escrow, freelancer } = await loadFixture(deployFixture);
-    await escrow.connect((await loadFixture(deployFixture)).client).createProject(
+    const { escrow, client, freelancer } = await loadFixture(deployFixture);
+    await escrow.connect(client).createProject(
       freelancer.address,
       ["Work"],
       [usdc(100)]
     );
-    // Can't claim a Pending milestone — would revert with InvalidMilestoneStatus
+
+    await time.increase(FOURTEEN_DAYS + 1);
+    await expect(
+      escrow.connect(freelancer).claimExpiredMilestone(0, 0)
+    ).to.be.revertedWithCustomError(escrow, "InvalidMilestoneStatus");
+  });
+
+  it("reverts if milestoneIdx is out of bounds", async function () {
+    const { escrow, freelancer } = await withCompletedMilestone();
+    await time.increase(FOURTEEN_DAYS + 1);
+
+    await expect(
+      escrow.connect(freelancer).claimExpiredMilestone(0, 99)
+    ).to.be.revertedWithCustomError(escrow, "InvalidMilestones");
+  });
+
+  it("reverts when paused", async function () {
+    const { escrow, freelancer, owner } = await withCompletedMilestone();
+    await time.increase(FOURTEEN_DAYS + 1);
+    await escrow.connect(owner).pause();
+
+    await expect(
+      escrow.connect(freelancer).claimExpiredMilestone(0, 0)
+    ).to.be.revertedWithCustomError(escrow, "EnforcedPause");
   });
 });

@@ -85,4 +85,13 @@ describe("FreelanceEscrow — cancelProject", function () {
       escrow.connect(client).cancelProject(0)
     ).to.be.revertedWithCustomError(escrow, "NothingToRefund");
   });
+
+  it("reverts when paused", async function () {
+    const { escrow, client, owner } = await withProject();
+    await escrow.connect(owner).pause();
+
+    await expect(
+      escrow.connect(client).cancelProject(0)
+    ).to.be.revertedWithCustomError(escrow, "EnforcedPause");
+  });
 });

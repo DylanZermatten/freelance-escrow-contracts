@@ -11,7 +11,7 @@ This repository contains the Solidity contracts, Hardhat configuration, deployme
 - Auto-release implemented
 - Cancel/refund implemented
 - Dispute flow implemented
-- Local test suite passing: `64 passing`
+- Local test suite passing
 
 ## Stack
 
@@ -64,10 +64,10 @@ npm run coverage
 
 Latest local result:
 
-- Statements: `95.41%`
-- Branches: `75.78%`
-- Functions: `87.5%`
-- Lines: `96.35%`
+- Statements: `100%`
+- Branches: `95.38%`
+- Functions: `100%`
+- Lines: `100%`
 
 ## Deploy
 
@@ -109,9 +109,9 @@ Before Sepolia deployment, create a `.env` from `.env.example`.
 
 ## Useful docs for the team
 
-- Frontend handoff: [docs/FOR_FRONTEND.md](/Users/dylanzermatten/Desktop/UNIL/Master/Semestre%202/Projet%20blockchain/freelance-escrow-contracts/docs/FOR_FRONTEND.md)
-- Integration handoff: [docs/FOR_INTEGRATION.md](/Users/dylanzermatten/Desktop/UNIL/Master/Semestre%202/Projet%20blockchain/freelance-escrow-contracts/docs/FOR_INTEGRATION.md)
-- Testing handoff: [docs/FOR_TESTING.md](/Users/dylanzermatten/Desktop/UNIL/Master/Semestre%202/Projet%20blockchain/freelance-escrow-contracts/docs/FOR_TESTING.md)
+- Frontend handoff: [docs/FOR_FRONTEND.md](docs/FOR_FRONTEND.md)
+- Integration handoff: [docs/FOR_INTEGRATION.md](docs/FOR_INTEGRATION.md)
+- Testing handoff: [docs/FOR_TESTING.md](docs/FOR_TESTING.md)
 
 ## Notes
 

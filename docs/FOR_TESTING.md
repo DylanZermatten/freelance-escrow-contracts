@@ -4,7 +4,7 @@
 
 The local Hardhat test suite passes fully.
 
-- `64 passing`
+- `93 passing` at the current repository state
 
 ## Main end-to-end scenarios already covered
 

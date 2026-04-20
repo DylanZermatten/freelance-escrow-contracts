@@ -55,6 +55,7 @@ Client can call `cancelProject(projectId)` and get refunded for still pending mi
 ### Dispute flow
 
 Client or freelancer can call `raiseDispute(projectId, milestoneIdx, reason)`.
+After owner resolution, the disputed milestone is closed and the project returns to `Active` only if other milestones still remain unresolved. Otherwise it becomes `Completed`.
 
 ## Read functions
 

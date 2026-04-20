@@ -132,9 +132,9 @@ describe("FreelanceEscrow — full integration flows", function () {
     // Client: exactly 80
     expect(clientAfter - clientBefore).to.equal(usdc(80));
 
-    // Project back to Active (not yet Completed — milestone resolved but could have more)
+    // Since this project has only one milestone, dispute resolution fully closes it
     const [, , , , , status] = await escrow.getProject(0);
-    expect(status).to.equal(0n); // Active → Completed since only 1 milestone
+    expect(status).to.equal(2n); // Completed
   });
 
   // ── Flow 5: Emergency pause ───────────────────────────────────────
