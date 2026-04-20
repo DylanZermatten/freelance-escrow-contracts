@@ -85,6 +85,39 @@ npx hardhat run scripts/deploy.js --network sepolia
 
 Before Sepolia deployment, create a `.env` from `.env.example`.
 
+## Sepolia deployment
+
+Current deployed contracts:
+
+- `MockUSDC`: `0xe0Be1a63F2A12F23b4304262494E4CCeFe6F95E9`
+- `FreelanceEscrow`: `0xEda5541b44F17B727285f56E2C82bB8e08C2A82c`
+
+Verification links:
+
+- `MockUSDC`: <https://sepolia.etherscan.io/address/0xe0Be1a63F2A12F23b4304262494E4CCeFe6F95E9#code>
+- `FreelanceEscrow`: <https://sepolia.etherscan.io/address/0xEda5541b44F17B727285f56E2C82bB8e08C2A82c#code>
+
+Deployment metadata is stored in [deployments/sepolia.json](deployments/sepolia.json).
+
+## Sepolia smoke test
+
+The main escrow flow was manually validated on Sepolia with real transactions:
+
+1. `faucet()` on `MockUSDC`
+2. `approve()` from client to `FreelanceEscrow`
+3. `createProject()` with 2 milestones
+4. `completeMilestone(0, 0)` by the freelancer
+5. `approveMilestone(0, 0)` by the client
+
+Result observed:
+
+- milestone `0` completed and approved on-chain
+- freelancer received `98 USDC` net
+- platform fee accumulated: `2 USDC`
+- project remained `Active` because milestone `1` is still unresolved
+
+Full transaction hashes and notes: [docs/SEPOLIA_SMOKE_TEST.md](docs/SEPOLIA_SMOKE_TEST.md)
+
 ## Main contract flows
 
 ### Client
@@ -112,6 +145,7 @@ Before Sepolia deployment, create a `.env` from `.env.example`.
 - Frontend handoff: [docs/FOR_FRONTEND.md](docs/FOR_FRONTEND.md)
 - Integration handoff: [docs/FOR_INTEGRATION.md](docs/FOR_INTEGRATION.md)
 - Testing handoff: [docs/FOR_TESTING.md](docs/FOR_TESTING.md)
+- Sepolia smoke test: [docs/SEPOLIA_SMOKE_TEST.md](docs/SEPOLIA_SMOKE_TEST.md)
 - Security review: [SECURITY.md](SECURITY.md)
 
 ## Notes
