@@ -112,6 +112,7 @@ Before Sepolia deployment, create a `.env` from `.env.example`.
 - Frontend handoff: [docs/FOR_FRONTEND.md](docs/FOR_FRONTEND.md)
 - Integration handoff: [docs/FOR_INTEGRATION.md](docs/FOR_INTEGRATION.md)
 - Testing handoff: [docs/FOR_TESTING.md](docs/FOR_TESTING.md)
+- Security review: [SECURITY.md](SECURITY.md)
 
 ## Notes
 

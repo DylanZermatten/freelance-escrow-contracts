@@ -182,7 +182,7 @@ contract FreelanceEscrow is ReentrancyGuard, Pausable, Ownable {
         if (len == 0 || len > MAX_MILESTONES) revert InvalidMilestones();
         if (len != amounts.length) revert InvalidMilestones();
 
-        uint256 total;
+        uint256 total = 0;
         for (uint256 i; i < len; ++i) {
             if (amounts[i] == 0) revert InvalidAmount();
             if (bytes(descriptions[i]).length > MAX_DESCRIPTION_LENGTH) revert DescriptionTooLong();
@@ -296,7 +296,7 @@ contract FreelanceEscrow is ReentrancyGuard, Pausable, Ownable {
         if (msg.sender != p.client) revert Unauthorized();
         if (p.status != ProjectStatus.Active) revert InvalidProjectStatus();
 
-        uint256 refund;
+        uint256 refund = 0;
         uint256 len = p.milestones.length;
         for (uint256 i; i < len; ++i) {
             Milestone storage m = p.milestones[i];
