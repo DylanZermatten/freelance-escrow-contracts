@@ -45,6 +45,7 @@ contract FreelanceEscrow is ReentrancyGuard, Pausable, Ownable {
                                 TYPES
     //////////////////////////////////////////////////////////////*/
 
+    /// @notice Lifecycle status of a single milestone.
     enum MilestoneStatus {
         Pending,
         Completed,
@@ -54,6 +55,7 @@ contract FreelanceEscrow is ReentrancyGuard, Pausable, Ownable {
         Disputed
     }
 
+    /// @notice High-level status of a project.
     enum ProjectStatus {
         Active,
         Cancelled,
@@ -61,6 +63,7 @@ contract FreelanceEscrow is ReentrancyGuard, Pausable, Ownable {
         Disputed
     }
 
+    /// @notice Data stored for each project milestone.
     struct Milestone {
         string description;
         uint256 amount;
@@ -69,6 +72,7 @@ contract FreelanceEscrow is ReentrancyGuard, Pausable, Ownable {
         MilestoneStatus status;
     }
 
+    /// @notice Data stored for each escrow project.
     struct Project {
         address client;
         address freelancer;
@@ -222,6 +226,8 @@ contract FreelanceEscrow is ReentrancyGuard, Pausable, Ownable {
 
     /**
      * @notice Freelancer marks a milestone as completed.
+     * @param projectId The project id.
+     * @param milestoneIdx The milestone index within the project.
      */
     function completeMilestone(uint256 projectId, uint256 milestoneIdx)
         external
@@ -243,6 +249,8 @@ contract FreelanceEscrow is ReentrancyGuard, Pausable, Ownable {
 
     /**
      * @notice Client approves a completed milestone and releases payment to freelancer.
+     * @param projectId The project id.
+     * @param milestoneIdx The milestone index within the project.
      */
     function approveMilestone(uint256 projectId, uint256 milestoneIdx)
         external
@@ -263,6 +271,8 @@ contract FreelanceEscrow is ReentrancyGuard, Pausable, Ownable {
     /**
      * @notice Freelancer claims payment after the auto-release deadline.
      * @dev Protects freelancer if client goes unresponsive.
+     * @param projectId The project id.
+     * @param milestoneIdx The milestone index within the project.
      */
     function claimExpiredMilestone(uint256 projectId, uint256 milestoneIdx)
         external
@@ -286,6 +296,7 @@ contract FreelanceEscrow is ReentrancyGuard, Pausable, Ownable {
     /**
      * @notice Client cancels the project and recovers funds for non-started milestones.
      * @dev Milestones already Completed remain claimable by the freelancer.
+     * @param projectId The project id.
      */
     function cancelProject(uint256 projectId)
         external
@@ -321,6 +332,9 @@ contract FreelanceEscrow is ReentrancyGuard, Pausable, Ownable {
     /**
      * @notice Either party can raise a dispute on a Completed milestone.
      * @dev Freezes auto-release until owner resolves it.
+     * @param projectId The project id.
+     * @param milestoneIdx The disputed milestone index.
+     * @param reason Short free-text reason recorded on-chain.
      */
     function raiseDispute(
         uint256 projectId,
@@ -345,6 +359,8 @@ contract FreelanceEscrow is ReentrancyGuard, Pausable, Ownable {
 
     /**
      * @notice Owner resolves a dispute by splitting the milestone amount between parties.
+     * @param projectId The project id.
+     * @param milestoneIdx The disputed milestone index.
      * @param amountToFreelancer Portion sent to freelancer (gross, before fee).
      * @param amountToClient Portion refunded to client.
      * @dev amountToFreelancer + amountToClient MUST equal milestone.amount exactly.
@@ -386,6 +402,10 @@ contract FreelanceEscrow is ReentrancyGuard, Pausable, Ownable {
                                ADMIN
     //////////////////////////////////////////////////////////////*/
 
+    /**
+     * @notice Withdraw accumulated platform fees.
+     * @param to Recipient address for the fee withdrawal.
+     */
     function withdrawFees(address to) external onlyOwner nonReentrant {
         if (to == address(0)) revert InvalidAddress();
         uint256 amount = accumulatedFees;
@@ -395,6 +415,11 @@ contract FreelanceEscrow is ReentrancyGuard, Pausable, Ownable {
         paymentToken.safeTransfer(to, amount);
     }
 
+    /**
+     * @notice Update the default platform fee for future projects.
+     * @dev Existing projects keep their fee locked at creation time.
+     * @param newFeeBps New default fee in basis points.
+     */
     function setDefaultPlatformFee(uint256 newFeeBps) external onlyOwner {
         if (newFeeBps > MAX_FEE_BPS) revert FeeTooHigh();
         uint256 old = defaultPlatformFeeBps;
@@ -402,10 +427,12 @@ contract FreelanceEscrow is ReentrancyGuard, Pausable, Ownable {
         emit DefaultFeeUpdated(old, newFeeBps);
     }
 
+    /// @notice Pause state-changing user actions.
     function pause() external onlyOwner {
         _pause();
     }
 
+    /// @notice Resume state-changing user actions after a pause.
     function unpause() external onlyOwner {
         _unpause();
     }
@@ -414,6 +441,18 @@ contract FreelanceEscrow is ReentrancyGuard, Pausable, Ownable {
                            VIEW FUNCTIONS
     //////////////////////////////////////////////////////////////*/
 
+    /**
+     * @notice Return the main metadata of a project.
+     * @param projectId The project id.
+     * @return client The client address.
+     * @return freelancer The freelancer address.
+     * @return totalAmount The total token amount locked for the project.
+     * @return platformFeeBps The fee locked for this project in basis points.
+     * @return createdAt Project creation timestamp.
+     * @return status Current project status.
+     * @return milestoneCount Number of milestones in the project.
+     * @return disputeReason Current dispute reason, or empty string when none is active.
+     */
     function getProject(uint256 projectId)
         external
         view
@@ -442,6 +481,12 @@ contract FreelanceEscrow is ReentrancyGuard, Pausable, Ownable {
         );
     }
 
+    /**
+     * @notice Return a single milestone.
+     * @param projectId The project id.
+     * @param milestoneIdx The milestone index within the project.
+     * @return The full milestone struct.
+     */
     function getMilestone(uint256 projectId, uint256 milestoneIdx)
         external
         view
@@ -453,6 +498,11 @@ contract FreelanceEscrow is ReentrancyGuard, Pausable, Ownable {
         return p.milestones[milestoneIdx];
     }
 
+    /**
+     * @notice Return all milestones for a project.
+     * @param projectId The project id.
+     * @return Array of all milestones.
+     */
     function getAllMilestones(uint256 projectId)
         external
         view
@@ -463,10 +513,20 @@ contract FreelanceEscrow is ReentrancyGuard, Pausable, Ownable {
         return p.milestones;
     }
 
+    /**
+     * @notice Return the list of project ids created by a client.
+     * @param client The client address.
+     * @return Project ids associated with that client.
+     */
     function getProjectsByClient(address client) external view returns (uint256[] memory) {
         return _clientProjects[client];
     }
 
+    /**
+     * @notice Return the list of project ids assigned to a freelancer.
+     * @param freelancer The freelancer address.
+     * @return Project ids associated with that freelancer.
+     */
     function getProjectsByFreelancer(address freelancer) external view returns (uint256[] memory) {
         return _freelancerProjects[freelancer];
     }
@@ -475,11 +535,25 @@ contract FreelanceEscrow is ReentrancyGuard, Pausable, Ownable {
                              INTERNAL
     //////////////////////////////////////////////////////////////*/
 
+    /**
+     * @notice Internal helper to fetch an existing project.
+     * @param projectId The project id.
+     * @return p Storage pointer to the project.
+     */
     function _getProject(uint256 projectId) internal view returns (Project storage p) {
         p = _projects[projectId];
         if (p.client == address(0)) revert ProjectNotFound();
     }
 
+    /**
+     * @notice Internal helper to release a milestone to the freelancer.
+     * @dev Computes and accumulates the platform fee before transferring tokens.
+     * @param p Storage pointer to the parent project.
+     * @param m Storage pointer to the milestone being released.
+     * @param projectId The project id.
+     * @param milestoneIdx The milestone index.
+     * @param newStatus The terminal milestone status to set (`Approved` or `Claimed`).
+     */
     function _releaseMilestone(
         Project storage p,
         Milestone storage m,
@@ -507,6 +581,11 @@ contract FreelanceEscrow is ReentrancyGuard, Pausable, Ownable {
         paymentToken.safeTransfer(p.freelancer, netAmount);
     }
 
+    /**
+     * @notice Check whether a project has any unresolved work remaining.
+     * @param p Storage pointer to the project.
+     * @return True when no milestone is still `Pending` or `Completed`.
+     */
     function _isProjectFullyResolved(Project storage p) internal view returns (bool) {
         uint256 len = p.milestones.length;
         for (uint256 i; i < len; ++i) {

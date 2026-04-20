@@ -146,6 +146,7 @@ Full transaction hashes and notes: [docs/SEPOLIA_SMOKE_TEST.md](docs/SEPOLIA_SMO
 - Integration handoff: [docs/FOR_INTEGRATION.md](docs/FOR_INTEGRATION.md)
 - Testing handoff: [docs/FOR_TESTING.md](docs/FOR_TESTING.md)
 - Sepolia smoke test: [docs/SEPOLIA_SMOKE_TEST.md](docs/SEPOLIA_SMOKE_TEST.md)
+- Design decisions: [DESIGN_DECISIONS.md](DESIGN_DECISIONS.md)
 - Security review: [SECURITY.md](SECURITY.md)
 
 ## Notes
