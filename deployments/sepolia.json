@@ -1,0 +1,9 @@
+{
+  "network": "sepolia",
+  "chainId": "11155111",
+  "mockUSDC": "0xe0Be1a63F2A12F23b4304262494E4CCeFe6F95E9",
+  "freelanceEscrow": "0xEda5541b44F17B727285f56E2C82bB8e08C2A82c",
+  "deployer": "0x22Eea93309C55deaD39E7b78833D06D00F049894",
+  "deployedAt": "2026-04-20T11:43:05.956Z",
+  "blockNumber": 10696840
+}
