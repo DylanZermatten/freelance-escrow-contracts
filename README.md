@@ -1,8 +1,10 @@
 # FreelanceEscrow Contracts
 
-Smart contracts for the FreelanceEscrow capstone project at HEC/UNIL.
+Milestone-based escrow for freelance payments in USDC: the client funds a project upfront, each milestone is released on approval or automatically after 14 days, and disputes are settled on-chain by the platform owner.
 
-This repository contains the Solidity contracts, Hardhat configuration, deployment script, and automated test suite for the escrow logic used by the rest of the team.
+Group capstone project, *Blockchain and Crypto Economy*, HEC Lausanne (UNIL), 2026. Team of four: **I designed, implemented and tested the smart-contract layer in this repository** (Solidity contracts, test suite, security review, Sepolia deployment). The rest of the project, including the frontend and backend, was shared among my three teammates.
+
+**At a glance:** 93 automated tests · 100% statement coverage, 95.4% branch coverage · Slither static analysis · contracts deployed and verified on the Sepolia testnet.
 
 ## Current status
 
@@ -153,4 +155,4 @@ Full transaction hashes and notes: [docs/SEPOLIA_SMOKE_TEST.md](docs/SEPOLIA_SMO
 
 - Payments use a single ERC-20 token set at deployment time.
 - `MockUSDC` uses 6 decimals to mimic USDC-style amounts.
-- The repository currently focuses on Person 1 scope: smart contracts, tests, deployment, and technical handoff.
+- This repository covers the smart-contract scope of the project: contracts, tests, deployment and technical handoff to the rest of the team.
